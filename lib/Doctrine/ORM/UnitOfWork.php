@@ -1057,13 +1057,11 @@ class UnitOfWork implements PropertyChangedListener
             }
 
             if ($preUpdateInvoke != ListenersInvoker::INVOKE_NONE) {
-                $this->listenersInvoker->invoke(
-                    $class,
-                    Events::preUpdate,
-                    $entity,
-                    new PreUpdateEventArgs($entity, $this->em, (isset($this->entityChangeSets[$oid]) ? $this->entityChangeSets[$oid] : [])),
-                    $preUpdateInvoke
-                );
+                if (!isset($this->entityChangeSets[$oid])) {
+                    $this->entityChangeSets[$oid] = [];
+                }
+
+                $this->listenersInvoker->invoke($class, Events::preUpdate, $entity, new PreUpdateEventArgs($entity, $this->em, $this->entityChangeSets[$oid]), $preUpdateInvoke);
                 $this->recomputeSingleEntityChangeSet($class, $entity);
             }
 
